@@ -9,6 +9,7 @@ Install
 This should be enough to have everything up and running : 
 
 git clone https://github.com/clmntb/map-generator
+
 npm install 
 
 Config
