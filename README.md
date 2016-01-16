@@ -14,6 +14,10 @@ git clone https://github.com/clmntb/map-generator
 
 npm install 
 
+cd public
+
+bower install
+
 Config
 ======
 

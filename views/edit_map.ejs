@@ -41,283 +41,190 @@
         <div id="style-div">
             <textarea id="style-edit" class="form-control" placeholder="Edit map style"><% if (map.style) {%><%- map.style %><% } %></textarea>
         </div>
-        <script>
-            $("#style-edit").bind('input propertychange', function() {
-                var sendInfo = {
-                    style: $("#style-edit").val()
-                };
-                $.ajax({
-                   type: "POST",
-                   url: "/edit_map/<%= map.id %>",
-                   dataType: "json",
-                   success: function (msg) {
-                        // nothing to do
-                   },
-                   error: function(msg){
-                       alert(JSON.stringify(msg));
-                   },
-                   data: sendInfo
-                });
-            });
-
-        </script>
     </div>
     
     <div id="markers">
         <h4>Markers</h4>
     </div>
+        
+</div>
+<script type="text/javascript" src="/js/app.map_functions.js"></script>
+<script type="text/javascript">
+    /*
+     *  Listeners and functions
+     */
     
-    <script type="text/javascript">
-        var map ;
-        var categories = <%- JSON.stringify(categories) %>;
-        var markers_pointers = new Array();
+    $("#style-edit").bind('input propertychange', function() {
+        var sendInfo = {
+            style: $("#style-edit").val()
+        };
+        alert(JSON.stringify(sendInfo));
+        $.ajax({
+           type: "POST",
+           url: "/edit_map/<%= map.id %>",
+           dataType: "json",
+           success: function (msg) {
+                // nothing to do
+           },
+           error: function(msg){
+               alert(JSON.stringify(msg));
+           },
+           data: sendInfo
+        });
+    });
+    
+    $("#add-marker").click(function(){
+        var sendInfo = {
+            title: $("#place-title").val(),
+            subtitle: $("#place-subtitle").val(),
+            position: JSON.stringify(autocomplete2.getPlace().geometry.location),
+            image: $("#place-image").val(),
+            lien: $("#place-article").val(),
+            description: $("#place-description").val(),
+            category: $("#place-category").val()                    
+        };
+        $.ajax({
+           type: "POST",
+           url: "/edit_map/<%= map.id %>/add_marker",
+           dataType: "json",
+           success: function (res) {
+                addMarker(res.marker,res.category);
+                $("#place-content").hide();
+                $("#place-title").val("");
+                $("#place-subtitle").val("");
+                $("#place-image").val("");
+                $("#place-article").val("");
+                $("#place-description").val("");
+           },
+           error: function(msg){
+               alert(JSON.stringify(msg));
+           },
+           data: sendInfo
+        });
+    });
+    
+    function deleteMarker(id){
+        $.ajax({
+           type: "GET",
+           url: "/edit_map/<%= map.id %>/delete_marker/"+id,
+           success: function (data) {
+                var toDelete;
+                for(var i=0; i< markers_pointers.length; i++){
+                    if (markers_pointers[i].id == id)
+                        toDelete = markers_pointers[i].marker;
+                };
+                removeFromMap(toDelete);
+                $("#marker-vignette-"+id).remove();
+           },
+           error: function(msg){
+               alert(JSON.stringify(msg));
+           }
+        });
+    }
+
+</script>
+
+<script type="text/javascript">
+    /*
+     *  Variable definitions
+     */
+    var map ;
+    var markers_pointers = new Array();
+    var categories = <%- JSON.stringify(categories) %>
+    var base_geoloc = <% if (map.base_geoloc){ %><%- map.base_geoloc %><% } else { %>{lat: 48.8534100, lng: 2.3348000}<% } %>;
+    var zoom = <% if (map.zoom){ %><%= map.zoom %><% }else { %>10<% } %>;
+    var styles <% if (map.style) {%>= <%- map.style %><% } %>;
+    var styledMap;
+
+    function initMap() {
         
-        var base_geoloc;
-        
-        <% if (map.base_geoloc){ %>
-            base_geoloc = { lat:<%= JSON.parse(map.base_geoloc).lat %>, lng: <%= JSON.parse(map.base_geoloc).lng %>} ; 
-        <% }else { %>
-            base_geoloc = {lat: 48.8534100, lng: 2.3348000};
-        <% } %>
-                
-        var zoom;
-        <% if (map.zoom){ %>
-            zoom = <%= map.zoom %> ; 
-        <% }else { %>
-            zoom = 10;
-        <% } %>
-        
-        function initMap() {
-            // Create an array of styles.
-            var styles <% if (map.style) {%>= <%- map.style %><% } %>;
+        styledMap = new google.maps.StyledMapType(styles,{name: "Styled Map"});
+        var mapOptions = {
+            zoom: zoom,
+            center: base_geoloc,
+            mapTypeControlOptions: {
+	            mapTypeIds: [google.maps.MapTypeId.ROADMAP, 'map_style']
+            }
+        };
 
-            
-
-            // Create a new StyledMapType object, passing it the array of styles,
-            // as well as the name to be displayed on the map type control.
-            var styledMap = new google.maps.StyledMapType(styles,{name: "Styled Map"});
-
-
-            // Create a map object, and include the MapTypeId to add
-            // to the map type control.
-            var mapOptions = {
-	            zoom: zoom,
-	            center: base_geoloc,
-	            mapTypeControlOptions: {
-		            mapTypeIds: [google.maps.MapTypeId.ROADMAP, 'map_style']
-	            }
+        map = new google.maps.Map(document.getElementById('map'), mapOptions);
+        map.mapTypes.set('map_style', styledMap);
+        map.setMapTypeId('map_style');
+        map.addListener('zoom_changed', function(){
+            zoom = map.getZoom();
+            var sendInfo = {
+                zoom: zoom  
             };
-
-            map = new google.maps.Map(document.getElementById('map'), mapOptions);
-
-            //Associate the styled map with the MapTypeId and set it to display.
-            map.mapTypes.set('map_style', styledMap);
-            map.setMapTypeId('map_style');
-            
-            map.addListener('zoom_changed', function(){
-                var zoom = map.getZoom();
-                var sendInfo = {
-                    zoom: zoom  
-                };
-                $.ajax({
-                   type: "POST",
-                   url: "/edit_map/<%= map.id %>",
-                   dataType: "json",
-                   success: function (msg) {
-                       //
-                   },
-                   error: function(msg){
-                       alert(JSON.stringify(msg));
-                   },
-                   data: sendInfo
-                });
-            });
-            
-            map.addListener('dragend', function(){
-                var center = map.center;
-                var sendInfo = {
-                    base_geoloc: JSON.stringify(center)  
-                };
-                $.ajax({
-                   type: "POST",
-                   url: "/edit_map/<%= map.id %>",
-                   dataType: "json",
-                   success: function (msg) {
-                       //
-                   },
-                   error: function(msg){
-                       alert(JSON.stringify(msg));
-                   },
-                   data: sendInfo
-                });
-            });
-            
-	        var input = $("#search");
-            var options = {
-                //types: ['establishment']
-            }
-            
-            var input = document.getElementById('search');
-            
-            autocomplete1 = new google.maps.places.Autocomplete(document.getElementById('geoloc_base'),options);
-            autocomplete1.addListener('place_changed', function (){
-                var place = autocomplete1.getPlace();
-                var sendInfo = {
-                    base_name: place.name,
-                    base_geoloc: JSON.stringify(place.geometry.location)
-                };
-                $.ajax({
-                   type: "POST",
-                   url: "/edit_map/<%= map.id %>",
-                   dataType: "json",
-                   success: function (msg) {
-                       map.panTo(place.geometry.location);
-                   },
-                   error: function(msg){
-                       alert(JSON.stringify(msg));
-                   },
-                   data: sendInfo
-                });
-            });
-
-            var autocomplete2 = new google.maps.places.Autocomplete(input, options);
-            autocomplete2.addListener('place_changed', function (){
-                var div = $("#place-content");
-                var place = autocomplete2.getPlace();
-                div.show();
-            });
-            
-            $("#add-marker").click(function(){
-                var position = autocomplete2.getPlace().geometry.location;
-                var title = $("#place-title").val();
-                var subtitle = $("#place-subtitle").val();
-                var image = $("#place-image").val();
-                var article = $("#place-article").val();
-                var content = $("#place-description").val();
-                var category = $("#place-category").val();
-                
-                var sendInfo = {
-                    title: title,
-                    subtitle: subtitle,
-                    position: JSON.stringify(position),
-                    image: image,
-                    lien: article,
-                    description: content,
-                    category: category                    
-                };
-                $.ajax({
-                   type: "POST",
-                   url: "/edit_map/<%= map.id %>/add_marker",
-                   dataType: "json",
-                   success: function (res) {
-                        addMarker(res.marker,res.category);
-                        $("#place-content").hide();
-                        $("#place-title").val("");
-                        $("#place-subtitle").val("");
-                        $("#place-image").val("");
-                        $("#place-article").val("");
-                        $("#place-description").val("");
-                   },
-                   error: function(msg){
-                       alert(JSON.stringify(msg));
-                   },
-                   data: sendInfo
-                });
-            });
-                                    
-            for(var i=0; i<categories.length; i++){
-                for(var j=0; j<categories[i].markers.length; j++){
-                    addMarker(categories[i].markers[j], categories[i]);    
-                }
-            }         
-        }
-    </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=<%= settings.MAPS_API_KEY %>&signed_in=true&libraries=places&callback=initMap"
-        async defer></script>
-    <script>
-        function format(s){
-            var res = "<p>";
-            if(s){
-                var lines = s.split("\n");
-                $.each(lines, function(key,value){
-                    if (value)
-                        res += value + "<br>";
-                    else
-                        res += "</p><p>";
-                });
-            }
-            return res + "</p>";
-        }
-        
-        function deleteMarker(id){
             $.ajax({
-               type: "GET",
-               url: "/edit_map/<%= map.id %>/delete_marker/"+id,
-               success: function (data) {
-                    var toDelete;
-                    for(var i=0; i< markers_pointers.length; i++){
-                        if (markers_pointers[i].id == id)
-                            toDelete = markers_pointers[i].marker;
-                    };
-                    toDelete.setMap(null);
-                    $("#marker-vignette-"+id).remove();
+               type: "POST",
+               url: "/edit_map/<%= map.id %>",
+               dataType: "json",
+               success: function (msg) {
+                   // nothing to do
                },
                error: function(msg){
                    alert(JSON.stringify(msg));
-               }
+               },
+               data: sendInfo
             });
+        });
+        
+        map.addListener('dragend', function(){
+            var center = map.center;
+            var sendInfo = {
+                base_geoloc: JSON.stringify(center)  
+            };
+            $.ajax({
+               type: "POST",
+               url: "/edit_map/<%= map.id %>",
+               dataType: "json",
+               success: function (msg) {
+                   //
+               },
+               error: function(msg){
+                   alert(JSON.stringify(msg));
+               },
+               data: sendInfo
+            });
+        });
+        
+        var input = $("#search");
+        var options = {
+            //types: ['establishment']
         }
         
-        function addMarker(marker, category){
-
-	        var contentString = "<div class=\"marker-details\">";
-	        contentString += "<div class=\"marker-title\"><h3>" + marker.title + "</h3></div>";
-	        contentString += "<div class=\"marker-subtitle\"><h4>" + marker.subtitle + "</h4></div>";
-	        contentString += "<div class=\"marker-details\">";
-	        contentString += "<div class=\"marker-image\"><img src=\"" + marker.image + "\" /></div>";
-	        contentString += "<div class=\"marker-content\">" + format(marker.description) ;
-	        contentString += "<p><a href=\"" + marker.lien + "\">Voir la fiche</a></p></div>";
-            contentString += "</div>";
-	        contentString += "<div class=\"marker-article\"></div>";
-	        contentString += "</div>";
-
-	        var infowindow = new google.maps.InfoWindow({
-		        content: contentString
-	        });
-	        
-	        var newMarker;
-	        if (category.name == "Other"){
-	            newMarker = new google.maps.Marker({
-                    position: JSON.parse(marker.position),
-                    map: map,
-                    title: marker.title
-                });
-	        }
-	        else{
-	            newMarker = new google.maps.Marker({
-                    position: JSON.parse(marker.position),
-                    map: map,
-                    title: marker.title,
-                    icon: category.icon
-                });
-	        }
-	        
-	        newMarker.addListener('click', function() {
-                infowindow.open(map, newMarker);
+        var input = document.getElementById('search');
+        
+        autocomplete1 = new google.maps.places.Autocomplete(document.getElementById('geoloc_base'),options);
+        autocomplete1.addListener('place_changed', function (){
+            var place = autocomplete1.getPlace();
+            var sendInfo = {
+                base_name: place.name,
+                base_geoloc: JSON.stringify(place.geometry.location)
+            };
+            $.ajax({
+               type: "POST",
+               url: "/edit_map/<%= map.id %>",
+               dataType: "json",
+               success: function (msg) {
+                   map.panTo(place.geometry.location);
+               },
+               error: function(msg){
+                   alert(JSON.stringify(msg));
+               },
+               data: sendInfo
             });
-            markers_pointers.push({id: marker._id, marker: newMarker});
-            var markers_div = $("#markers");
-            var marker_vignette = "<div class=\"marker-vignette\" id=\"marker-vignette-"+marker._id+"\">";
-            marker_vignette += "<div class=\"marker-v-image\"><img src=\"" + marker.image + "\" /></div>";
-            marker_vignette += "<div class=\"marker-v-title\"><h5>"+ marker.title+"</h5></div>";
-            marker_vignette += "<div class=\"marker-delete\" onclick=\"deleteMarker('"+marker._id+"')\"><img src=\"http://uxrepo.com/static/icon-sets/ionicons/svg/ios7-trash-outline.svg\" /></div>";
-            marker_vignette += "</div>";
-            markers_div.append(marker_vignette);
-	    }
-    
-    
-    </script>
-</div>
+        });
 
-
-
+        var autocomplete2 = new google.maps.places.Autocomplete(input, options);
+        autocomplete2.addListener('place_changed', function (){
+            var div = $("#place-content");
+            var place = autocomplete2.getPlace();
+            div.show();
+        });
+                                
+        addAllMarkers(categories);         
+    }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=<%= settings.MAPS_API_KEY %>&libraries=places&callback=initMap"
+    async defer></script>

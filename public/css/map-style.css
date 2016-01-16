@@ -1,0 +1,48 @@
+#map {   position: absolute;
+        width: 100%;
+        height: 100%; }
+
+.marker-title{
+    text-align:center;
+}
+.marker-title h3{
+    font-size:150%;
+}
+.marker-subtitle{
+    text-align:center;
+    margin-top: -4px;
+    margin-bottom: 20px;
+}
+.marker-subtitle h4{
+    font-size:120%;
+    font-weight: normal;
+}
+.marker-details{
+    text-align:center;
+    display:block;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+.marker-image{
+    display: inline-block;
+    margin-right: 5px;
+    vertical-align: top;
+} 
+.marker-content{
+    display: inline-block;
+    margin-left: 10px;
+    text-align:left;
+    vertical-align: top;
+}
+.marker-content p{
+    font-size:110%;
+}
+.marker-image img{
+    width: 150px;
+}
+.marker-article{
+    margin-top: 10px;
+}
+.marker-article a{
+    font-size: 10px;
+}
