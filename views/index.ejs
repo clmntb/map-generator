@@ -1,0 +1,182 @@
+<% layout("base") -%>
+
+<div id="index-content">
+
+<div class="row">
+    
+    <div id="maps" class="col-md-6">
+        <h2>Maps</h2>
+
+        <div id="map_list">
+        
+            <div class="map-item" id="map-new-item">
+                <img id="map-new-item-img" src="http://uxrepo.com/static/icon-sets/google-material/svg/android-add-circle-outline.svg" />
+                <div id="map-new-item-form">
+                    <input type="text"  class="form-control" size="50" id="map-name" placeholder="Map name" />
+                    <button id="create-map" class="btn-small btn-primary">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="categories" class="col-md-5">
+        <h2>Categories</h2>
+        
+        <div id="category_list">
+            <div class="map-item" id="cat-new-item">
+                <img id="cat-new-item-img" src="http://uxrepo.com/static/icon-sets/google-material/svg/android-add-circle-outline.svg" />
+                <div id="cat-new-item-form">
+                    <input type="text" class="form-control" size="50" id="category-name" placeholder="Category name" />
+                    <input type="text" class="form-control" size="50" id="category-icon" placeholder="Category icon link" />
+                    <button id="create-category" class="btn-small btn-primary">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <script type="text/javascript">
+        
+        function editMap(id){
+            window.location.href="/edit_map/"+id;
+        }
+        
+        function deleteMap(id){
+            $.ajax({
+                type: "GET",
+                url:  "/delete_map/"+id,
+                success: function (res){
+                    $("#map-item-"+id).remove();                
+                },
+                error: function(msg){
+                    alert(JSON.stringify(msg));
+                }
+            });
+        
+        }
+        
+        function deleteCategory(id){
+            $.ajax({
+                type: "GET",
+                url:  "/delete_category/"+id,
+                success: function (res){
+                    $("#cat-item-"+id).remove();                
+                },
+                error: function(msg){
+                    alert(JSON.stringify(msg));
+                }
+            });
+        
+        }
+        
+        
+        function addMap(map){
+        
+            v = $('<div class="map-item" id="map-item-'+map._id+'">');
+            vignette = "<div class=\"map-item-icon\"><img src=\"https://upload.wikimedia.org/wikipedia/en/1/19/Google_Maps_Icon.png\" /></div>";
+            vignette += "<div class=\"map-item-text\">" + map.name + "</div>";
+            vignette += "<div class=\"map-delete\" onclick=\"deleteMap('"+map._id+"')\"><img src=\"http://uxrepo.com/static/icon-sets/ionicons/svg/ios7-trash-outline.svg\" /></div>";
+            vignette += "<div class=\"map-edit\" onclick=\"editMap('"+map._id+"')\"><img src=\"https://cdn2.iconfinder.com/data/icons/windows-8-metro-style/512/edit.png\" /></div>";
+            v.html(vignette);
+            v.insertBefore($("#map-new-item"));
+        }
+        
+        function addCategory(cat){
+        
+            v = $('<div class="map-item" id="cat-item-'+cat._id+'">');
+            vignette = "<div class=\"map-item-icon\"><img src=\""+cat.icon+"\" /></div>";
+            vignette += "<div class=\"map-item-text\">" + cat.name + "</div>";
+            vignette += "<div class=\"map-delete\" onclick=\"deleteCategory('"+cat._id+"')\"><img src=\"http://uxrepo.com/static/icon-sets/ionicons/svg/ios7-trash-outline.svg\" /></div>";
+            vignette += "<div class=\"map-edit\" onclick=\"editCategory('"+cat._id+"')\"><img src=\"https://cdn2.iconfinder.com/data/icons/windows-8-metro-style/512/edit.png\" /></div>";
+            v.html(vignette);
+            v.insertBefore($("#cat-new-item"));
+        }
+        
+        
+        $("#map-new-item").on("click",function(){
+            $("#map-new-item-img").hide();
+            $("#map-new-item-form").show();
+        });
+        
+        $("#cat-new-item").on("click",function(){
+            $("#cat-new-item-img").hide();
+            $("#cat-new-item-form").show();
+        });
+        
+        $("#create-map").on("click", function(){
+            var name = $("#map-name").val();
+            
+            var sendInfo = {
+                name: name
+            };
+            
+            $.ajax({
+               type: "POST",
+               url: "/create_map",
+               dataType: "json",
+               success: function (res) {
+                   addMap(res.map);
+                   $("#map-new-item-img").show();
+                   $("#map-new-item-form").hide();
+               },
+               error: function(msg){
+                    alert(JSON.stringify(msg));
+                },
+               data: sendInfo
+           });
+        });
+        
+        $("#create-category").on("click",function(){
+            var name = $("#category-name").val();
+            var icon = $("#category-icon").val();
+            if(name && icon){
+                var sendInfo = {
+                    name: name,
+                    icon: icon
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "/create_category",
+                    dataType: "json",
+                    success: function (res){
+                        addCategory(res.category);
+                       $("#cat-new-item-img").show();
+                       $("#cat-new-item-form").hide();
+                    },
+                    error: function(msg){
+                        alert(JSON.stringify(msg));
+                    },
+                    data: sendInfo
+                });
+            }
+        });
+        
+
+        $.ajax({
+            type:"GET",
+            url: "/maps",
+            success: function (data) {
+                var maps= JSON.parse(data);
+                for (var i=0; i<maps.length; i++){
+                    addMap(maps[i]);
+                }
+            },
+            error: function(msg){
+                alert(JSON.stringify(msg));
+            }
+        });
+        
+        $.ajax({
+            type:"GET",
+            url: "/categories",
+            success: function (data) {
+                var cats = JSON.parse(data);
+                for (var i=0; i<cats.length; i++){
+                    addCategory(cats[i]);
+                }
+            },
+            error: function(msg){
+                alert(JSON.stringify(msg));
+            }        
+        });
+
+    </script>
+</div>

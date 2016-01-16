@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Map generator</title>
+        <style>
+              a {text-decoration: none; color: black;}
+              html, body { height: 100%; margin:0;}
+              
+              #return{position: absolute; top:10px; right:10px; z-index:9999;}
+              #return-img {width: 40px;}
+              
+              #index-content{padding-left: 20px;}
+              
+              #map-name,#category-name,#category-icon{ margin-bottom:5px;width:95%; display:inline-block;}
+              #map-form,#category-form{width:30%;}
+              .map-item{ height: 60px; background: rgb(250,250,250); margin: 5px; padding-top:7px; }
+              .map-item-icon {display:inline-block; margin-right: 20px; width:50px; text-align:center; }
+              .map-item-text {display:inline-block; font-size:130%; margin-right: 20px;}
+              .map-item-actions {display:inline-block; float:right; font-size:130%;margin-left:20px;}
+              .map-item-icon img { max-width: 50px; max-height:50px;}
+              
+              .map-delete, .map-edit {
+                    margin-top: 5px;
+                    float: right;
+                    border: 1px solid #888;
+                    border-radius: 25px;
+                    cursor: pointer;
+                    margin-left: 20px;
+              }
+              .map-edit {padding:5px;}
+              .map-delete:hover, .map-edit:hover {
+                    background: rgba(100,100,100,0.2);
+              }
+              .map-delete img {width: 30px;}
+              .map-edit img {width: 20px; }
+              
+              #map-new-item img,#cat-new-item img{width: 45px;cursor:pointer;}
+              #map-new-item,#cat-new-item { text-align:center;}
+              #map-new-item-form,#cat-new-item-form {display:none; margin-top:7px;}
+              #map-new-item-form input { width: 80% ;}
+              #cat-new-item-form input { width: 40% ;}
+              
+              #map {   position: absolute;
+                        width: 100%;
+                        height: 100%; }
+              #geoloc{  position: absolute;
+                         top: 30px;
+                         left: 50%;
+                         margin-left: -300px;
+              }                
+	          #content { background-color: #CCC;}
+	          #place-content {display : none}
+	          #place-title { margin-top:5px;}
+	          #place-image { margin-top:5px;}
+	          #place-article { margin-top:5px;}
+	          #place-subtitle { margin-top:5px;}
+	          #place-description{margin-top:5px; margin-bottom:5px;}
+	          #place-category{margin-top: 5px;}
+	          #add-marker {display:block;}
+	          #workspace{width:100%; height:100%;}
+	          
+	          #style-editor{
+	                position: absolute;
+	                left: 10px;
+	                top: 10px;
+	                width: 350px;
+	                height: 43%;
+	                background: rgba(255,255,255,0.8);
+	                border: 1px solid #CCC;
+	                border-radius: 5px;
+	                padding: 10px;
+	          }
+	          
+	          #style-edit{
+	            height: 360px;
+	          }
+	          
+	          #markers{
+	                position: absolute;
+	                right:10px;
+	                top: 10px;
+	                width: 350px;
+	                height:85%;
+	                background: rgba(255,255,255,0.8);
+	                border: 1px solid #CCC;
+	                border-radius: 5px;
+	                overflow-y: auto;
+	          }
+	          #markers h4{
+	                text-align: center;
+	          }
+	          
+	          #search-div{
+	                position: absolute;
+	                left: 10px;
+	                bottom: 10px;
+	                width: 350px;
+	                height: 53%;
+	                background: rgba(255,255,255,0.8);
+	                border: 1px solid #CCC;
+	                border-radius: 5px;
+	                padding: 10px;
+	          }
+	          
+	          .marker-title{
+	                text-align:center;
+	          }
+	          .marker-title h3{
+	                font-size:150%;
+	          }
+	          .marker-subtitle{
+	                text-align:center;
+	                margin-top: -4px;
+	                margin-bottom: 20px;
+	          }
+	          .marker-subtitle h4{
+	                font-size:120%;
+	                font-weight: normal;
+	          }
+	          .marker-details{
+	                text-align:center;
+	                display:block;
+	                padding-left: 5px;
+	                padding-right: 5px;
+	          }
+	          .marker-image{
+	                display: inline-block;
+	                margin-right: 5px;
+	                vertical-align: top;
+	          } 
+	          .marker-content{
+	                display: inline-block;
+	                margin-left: 10px;
+	                text-align:left;
+	                vertical-align: top;
+              }
+              .marker-content p{
+                    font-size:110%;
+              }
+	          .marker-image img{
+	                width: 150px;
+	          }
+	          .marker-article{
+	                margin-top: 10px;
+	          }
+	          .marker-article a{
+	                font-size: 10px;
+	          }
+	          
+	          .marker-vignette{
+	                height: 60px;
+	                width: 100%;
+	                background: rgba(250,250,250,0.8);
+	                padding: 5px;     
+	                margin-bottom: 5px;
+	          }
+	          .marker-v-image{ 
+	                display: inline-block ;  
+              }
+              .marker-v-image img{
+	                height: 50px;
+	                width: 50px;
+	                margin-right: 10px;
+	                background-position: center center;
+                    background-size: cover;
+              }
+              .marker-delete {
+                    float: right;
+                    margin-top: 10px;  
+                    margin-right: 10px;
+                    border: 1px solid #888;
+                    border-radius: 25px;
+                    cursor: pointer;
+              }
+              .marker-delete:hover {
+                    background: rgba(100,100,100,0.2);
+              }
+              .marker-delete img{
+                    width: 30px;
+                    
+              }
+              
+	          .marker-v-title{display: inline-block ;}
+	          
+	          
+        </style>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script type="text/javascript" src="https://code.jquery.com/ui/1.12.0-beta.1/jquery-ui.min.js"></script>
+        
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+        <%-scripts%>
+        <%-stylesheets%>
+    </head>
+    <body> 
+        <%-body -%>   
+    </body>
+</html>
