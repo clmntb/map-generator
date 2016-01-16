@@ -1,7 +1,9 @@
-Context
-=======
+Context and Prerequisites
+========================
 
 Simple map generator for Google Maps Javascript API
+
+You must have node.js installed as well as a mongodb database.
 
 Install
 =======
