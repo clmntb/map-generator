@@ -11,17 +11,17 @@ Install
 This should be enough to have everything up and running : 
 
 ```
-git clone https://github.com/clmntb/map-generator
-npm install 
-cd public
-bower install
+$ git clone https://github.com/clmntb/map-generator
+$ npm install 
+$ cd public
+$ bower install
 ```
 
 Config
 ======
 
 ```
-mv config.github.js config.js
+$ mv config.github.js config.js
 ```
 
 Edit the file to insert your Google Maps javascript API key
@@ -32,4 +32,6 @@ Generate a sha256 hmac of the desired password and save it inside the config.js 
 Run
 ===
 
-node index.js
+```
+$ node index.js
+```
