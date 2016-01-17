@@ -316,6 +316,6 @@ app.get('/view_result/:id', function(req,res, next){
 /*
  *  Fire up the server !
  */
-app.listen(settings.SERVER_PORT, function(){
+app.listen(settings.SERVER_PORT, settings.SERVER_HOST, function(){
     console.log("Web server listening on port "+ settings.SERVER_PORT);
 });

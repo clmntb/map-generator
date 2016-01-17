@@ -1,9 +1,10 @@
 var settings = {
+    SERVER_HOST: "localhost",
     SERVER_PORT: 8080,
-    APP_USER: 'YOUR_USERNAME',
-    APP_PASSWORD: 'YOUR_PASSWORD',
-    APP_SALT: 'A SALT',
-    MAPS_API_KEY : "YOUR_API_KEY"
+    APP_USER: 'YOUR USER',
+    APP_PASSWORD: 'YOUR HASHMAC',
+    APP_SALT: 'YOUR SALT',
+    MAPS_API_KEY : "YOUR API KEY",
     DATABASE: "mongodb://localhost/map-generator"
 }
 
