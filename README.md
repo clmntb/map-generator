@@ -24,10 +24,9 @@ Config
 $ mv config.github.js config.js
 ```
 
-Edit the file to insert your Google Maps javascript API key
-Change the default settings (user, salt)
-
-Generate a sha256 hmac of the desired password and save it inside the config.js file.
+* Edit the file to insert your Google Maps javascript API key
+* Change the default settings (user, salt)
+* Generate a sha256 hmac of the desired password and save it inside the config.js file.
 
 Run
 ===
