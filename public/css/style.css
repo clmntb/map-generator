@@ -43,6 +43,8 @@ a {text-decoration: none; color: black;}
 
 #return{position: absolute; top:10px; right:10px; z-index:9999;}
 #return-img {width: 40px;}
+#save{position: absolute; top:17px; right:50px; z-index:9999; }
+#save-img {width: 25px;}
 
 #index-content{padding-left: 20px;}
 
@@ -104,7 +106,7 @@ a {text-decoration: none; color: black;}
 }
 
 #style-edit{
-height: 360px;
+    height: 360px;
 }
 
 #markers{

@@ -6,6 +6,9 @@
     <div id="return">
         <a href="/"><img id="return-img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/VisualEditor_-_Icon_-_Close.svg/2000px-VisualEditor_-_Icon_-_Close.svg.png" /></a>
     </div>
+    <div id="save">
+        <a href="/view_result/<%= map._id %>" target="_blank"><img id="save-img" src="https://cdn2.iconfinder.com/data/icons/windows-8-metro-style/128/save.png" /></a>    
+    </div>
     
     <div id="map">
     </div>
@@ -73,36 +76,6 @@
         });
     });
     
-    $("#add-marker").click(function(){
-        var sendInfo = {
-            title: $("#place-title").val(),
-            subtitle: $("#place-subtitle").val(),
-            position: JSON.stringify(autocomplete2.getPlace().geometry.location),
-            image: $("#place-image").val(),
-            lien: $("#place-article").val(),
-            description: $("#place-description").val(),
-            category: $("#place-category").val()                    
-        };
-        $.ajax({
-           type: "POST",
-           url: "/edit_map/<%= map.id %>/add_marker",
-           dataType: "json",
-           success: function (res) {
-                addMarker(res.marker,res.category);
-                $("#place-content").hide();
-                $("#place-title").val("");
-                $("#place-subtitle").val("");
-                $("#place-image").val("");
-                $("#place-article").val("");
-                $("#place-description").val("");
-           },
-           error: function(msg){
-               alert(JSON.stringify(msg));
-           },
-           data: sendInfo
-        });
-    });
-    
     function deleteMarker(id){
         $.ajax({
            type: "GET",
@@ -135,6 +108,7 @@
     var zoom = <% if (map.zoom){ %><%= map.zoom %><% }else { %>10<% } %>;
     var styles <% if (map.style) {%>= <%- map.style %><% } %>;
     var styledMap;
+    var infoWindows = new Array();
 
     function initMap() {
         
@@ -188,13 +162,14 @@
             });
         });
         
-        var input = $("#search");
+        map.addListener('click', function(){
+            closeAllInfoWindows();
+        });
+        
         var options = {
             //types: ['establishment']
         }
-        
-        var input = document.getElementById('search');
-        
+                
         autocomplete1 = new google.maps.places.Autocomplete(document.getElementById('geoloc_base'),options);
         autocomplete1.addListener('place_changed', function (){
             var place = autocomplete1.getPlace();
@@ -215,12 +190,42 @@
                data: sendInfo
             });
         });
-
-        var autocomplete2 = new google.maps.places.Autocomplete(input, options);
+        
+        var autocomplete2 = new google.maps.places.Autocomplete(document.getElementById('search'), options);
         autocomplete2.addListener('place_changed', function (){
             var div = $("#place-content");
             var place = autocomplete2.getPlace();
             div.show();
+        });
+        
+        $("#add-marker").click(function(){
+            var sendInfo = {
+                title: $("#place-title").val(),
+                subtitle: $("#place-subtitle").val(),
+                position: JSON.stringify(autocomplete2.getPlace().geometry.location),
+                image: $("#place-image").val(),
+                lien: $("#place-article").val(),
+                description: $("#place-description").val(),
+                category: $("#place-category").val()                    
+            };
+            $.ajax({
+               type: "POST",
+               url: "/edit_map/<%= map.id %>/add_marker",
+               dataType: "json",
+               success: function (res) {
+                    addMarker(res.marker,res.category);
+                    $("#place-content").hide();
+                    $("#place-title").val("");
+                    $("#place-subtitle").val("");
+                    $("#place-image").val("");
+                    $("#place-article").val("");
+                    $("#place-description").val("");
+               },
+               error: function(msg){
+                   alert(JSON.stringify(msg));
+               },
+               data: sendInfo
+            });
         });
                                 
         addAllMarkers(categories);         

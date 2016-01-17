@@ -10,6 +10,8 @@ var express = require("express"),
     settings = require('./config'),
     app = express();
 
+const crypto = require('crypto');
+
 /*
  *  Database Settings
  */
@@ -73,7 +75,8 @@ app.use(passport.session());
 
 passport.use(new Strategy(
     function(username, password, done){
-        if (username === settings.APP_USER && password === settings.APP_PASSWORD){ 
+        var hash = crypto.createHmac('sha256', settings.APP_SALT).update(password).digest('hex');
+        if (username === settings.APP_USER && hash === settings.APP_PASSWORD){ 
             var user = { id:1,  name: username, authenticated: true };
             return done(null, user); 
         }
@@ -180,7 +183,7 @@ app.get('/edit_map/:id', function(req, res) {
     Map.findById(id).exec(function(err, map){
         Category.find().populate("markers", null, {_map:id} ).exec(function (err, cats) {
             if (err) return console.error(err);
-            res.render('edit_map.ejs', {page: "Map editor", map: map, categories: cats, settings: settings});
+            res.render('edit_map.ejs', {map: map, categories: cats, settings: settings});
         });
     });
 });
@@ -288,6 +291,24 @@ app.get('/edit_map/:id/delete_marker/:mid', function(req,res,next){
         if(err) res.end(JSON.stringify({result:false,error:err}));
         map.markers[0].remove();
         res.end(JSON.stringify({result:true}));
+    });
+});
+
+app.get('/view_result/:id', function(req,res, next){
+    var id = req.params.id;
+    Map.findById(id).exec(function(err, map){
+        Category.find().populate("markers", null, {_map:id} ).exec(function (err, cats) {
+            if (err) return console.error(err);
+            res.setHeader("Access-Control-Allow-Origin","http://artesane.com");
+            
+            var result = new Array();
+            for(var i=0; i< cats.length; i++){
+                if (cats[i].markers.length > 0){
+                    result.push(cats[i]);
+                }
+            }
+            res.render('view_map_result.ejs', {map: map, categories: result, settings: settings});
+        });
     });
 });
 

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Map generator</title>
+        <style>
+        @font-face {
+          font-family: 'DINEngschriftStd';
+          src: url('http://artesane.com/wp-content/uploads/fonts/2FA9AF_0_0.eot'); /* IE9 Compat Modes */
+          src: url('http://artesane.com/wp-content/uploads/fonts/2FA9AF_0_0.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+               url('http://artesane.com/wp-content/uploads/fonts/2FA9AF_0_0.woff2') format('woff2'), /* Super Modern Browsers */
+               url('http://artesane.com/wp-content/uploads/fonts/2FA9AF_0_0.woff') format('woff'), /* Pretty Modern Browsers */
+               url('http://artesane.com/wp-content/uploads/fonts/2FA9AF_0_0.ttf')  format('truetype'); /* Safari, Android, iOS */
+        }
+
+        
+        body {
+            
+            width: 1140px;
+            margin:auto;
+        }
+        #save{position: absolute; top: 20px; right: 20px; cursor: pointer;}
+        #save img {width: 30px;}
+        #result-to-copy{margin:auto; margin-top:50px;}
+        </style>
+        
+        
+    </head>
+    <body>
+    <div id="map-content"><style>#sorting,.marker-subtitle{margin-bottom:20px;text-align:center}#map-title,#sorting,.marker-details,.marker-subtitle,.marker-title{text-align:center}#map-title,.category-name,.marker-title h3{text-transform:uppercase;font-family:DINEngschriftStd,Arial;letter-spacing:2px}#map-title{font-size:300%}#map{width:100%;height:800px}#sorting{width:100%;margin-top:20px}.marker-title h3{font-size:150%}.marker-subtitle{margin-top:-4px}.marker-subtitle h4{font-size:120%;font-weight:400}.marker-details{display:block;padding-left:5px;padding-right:5px}.marker-content,.marker-image{display:inline-block;vertical-align:top}.marker-image{margin-right:5px}.marker-content{margin-left:10px;text-align:left}.category-img,.category-img img,.category-name,.category-vignette{display:inline-block;vertical-align:middle}.marker-content p{font-size:110%}.marker-image img{width:150px}.marker-article{margin-top:10px}.marker-article a{font-size:10px}.category-vignette{padding:5px;height:45px;margin-right:10px;cursor:pointer}.category-img{margin-right:5px}.category-name{margin-left:5px;font-size:150%}.category-img img{max-width:30px}.category-selected{color:#000}.category-deselected,.category-selected:hover{color:#DDD}.category-deselected:hover{color:#000}</style><h1 id="map-title"><%= map.name %></h1><div id="sorting"></div><div id="map"></div><script src="https://code.jquery.com/jquery-2.2.0.min.js"></script><script type="text/javascript">var map ;var markers_pointers = new Array();var infoWindows = new Array();var categories = <%- JSON.stringify(categories) %>;var base_geoloc = <% if (map.base_geoloc){ %><%- map.base_geoloc %><% } else { %>{lat: 48.8534100, lng: 2.3348000}<% } %>;var zoom = <% if (map.zoom){ %><%= map.zoom %><% }else { %>10<% } %>;var styles <% if (map.style) {%>= <%- map.style %><% } %>;var styledMap;function format(e){var a="<p>";if(e)for(var t=e.split("\n"),i=0;i<t.length;i++)a+=t[i]?t[i]+"<br>":"</p><p>";return a+"</p>"}function removeFromMap(e){e.setMap(null)}function addMarker(e,a){var t='<div class="marker-details">';t+='<div class="marker-title"><h3>'+e.title+"</h3></div>",t+='<div class="marker-subtitle"><h4>'+e.subtitle+"</h4></div>",t+='<div class="marker-details">',t+='<div class="marker-image"><img src="'+e.image+'" /></div>',t+='<div class="marker-content">'+format(e.description),t+='<p><a href="'+e.lien+'">Voir la fiche</a></p></div>',t+="</div>",t+='<div class="marker-article"></div>',t+="</div>";var i,r=new google.maps.InfoWindow({content:t});i="Other"==a.name?new google.maps.Marker({position:JSON.parse(e.position),map:map,title:e.title}):new google.maps.Marker({position:JSON.parse(e.position),map:map,title:e.title,icon:a.icon}),i.addListener("click",function(){closeAllInfoWindows(),r.open(map,i)}),markers_pointers.push({id:e._id,marker:i,category_id:a._id}),infoWindows.push(r);var s=$("#markers"),o='<div class="marker-vignette" id="marker-vignette-'+e._id+'">';o+='<div class="marker-v-image"><img src="'+e.image+'" /></div>',o+='<div class="marker-v-title"><h5>'+e.title+"</h5></div>",o+='<div class="marker-delete" onclick="deleteMarker(\''+e._id+'\')"><img src="http://uxrepo.com/static/icon-sets/ionicons/svg/ios7-trash-outline.svg" /></div>',o+="</div>",s.append(o)}function closeAllInfoWindows(){for(var e=0;e<infoWindows.length;e++)infoWindows[e].close()}function addCategories(e){for(var a=0;a<e.length;a++){var t=e[a];pushCategory(t),addAllMarkers(t)}}function setMapOnAllCategory(e,a){for(var t=0;t<markers_pointers.length;t++)markers_pointers[t].category_id==a&&markers_pointers[t].marker.setMap(e)}function toggleCategorySelection(e){var a=$("#category-"+e),t=a.attr("class");"category-vignette category-selected"==t?(a.attr("class","category-vignette category-deselected"),setMapOnAllCategory(null,e)):(a.attr("class","category-vignette category-selected"),setMapOnAllCategory(map,e))}function pushCategory(e){var a=$("#sorting"),t='<div class="category-vignette category-selected" id="category-'+e._id+'">';t+='<div class="category-selector" onclick="toggleCategorySelection(\''+e._id+"')\">",t+='<div class="category-img"><img src="'+e.icon+'" /></div>',t+='<div class="category-name">'+e.name+"</div>",t+="</div>",t+="</div>",a.append(t)}function addAllMarkers(e){for(var a=0;a<e.markers.length;a++)addMarker(e.markers[a],e)}function initMap(){styledMap=new google.maps.StyledMapType(styles,{name:"Styled Map"});var e={zoom:zoom,center:base_geoloc,mapTypeControlOptions:{mapTypeIds:[google.maps.MapTypeId.ROADMAP,"map_style"]}};map=new google.maps.Map(document.getElementById("map"),e),map.mapTypes.set("map_style",styledMap),map.setMapTypeId("map_style"),addCategories(categories),map.addListener("click",function(){closeAllInfoWindows()})}</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=<%= settings.MAPS_API_KEY %>&libraries=places&callback=initMap" async defer></script></div>
+    
+    <div id="result-to-copy">
+        <textarea id="result" cols="100" rows="50" ></textarea>
+    </div>
+    <script>
+        $('#result').val($("#map-content").html());
+    </script>
+    
+    <div id="save">
+        <a onclick="saveResult()"><img id="save-img" src="https://cdn2.iconfinder.com/data/icons/windows-8-metro-style/128/save.png" /></a>    
+    </div>
+    <script>
+        function saveResult(){
+            var copyTextarea = $("#result");
+            copyTextarea.select();
+            try {
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Copying text command was ' + msg);
+            } catch (err) {
+                console.log('Oops, unable to copy');
+            }
+
+        }
+    </script>
+    </body>
+</hml>

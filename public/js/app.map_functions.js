@@ -51,9 +51,12 @@ function addMarker(marker, category){
     }
     
     newMarker.addListener('click', function() {
+        closeAllInfoWindows();
         infowindow.open(map, newMarker);
     });
     markers_pointers.push({id: marker._id, marker: newMarker});
+    infoWindows.push(infowindow);
+    
     var markers_div = $("#markers");
     var marker_vignette = "<div class=\"marker-vignette\" id=\"marker-vignette-"+marker._id+"\">";
     marker_vignette += "<div class=\"marker-v-image\"><img src=\"" + marker.image + "\" /></div>";
@@ -68,5 +71,11 @@ function addAllMarkers(categories){
         for(var j=0; j<categories[i].markers.length; j++){
             addMarker(categories[i].markers[j], categories[i]);    
         }
+    }
+}
+
+function closeAllInfoWindows(){
+    for(var i=0; i<infoWindows.length; i++){
+        infoWindows[i].close(); 
     }
 }
