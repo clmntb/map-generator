@@ -222,6 +222,9 @@ app.post('/edit_map/:id', function(req, res, next){
         var data =req.body;
         console.log(data);
         res.setHeader('Content-Type', 'application/json');
+        if (data.name){
+            map.name = data.name;
+        }
         if (data.base_name){
             console.log("Updating base_name to "+ data.base_name);
             map.base_name = data.base_name;

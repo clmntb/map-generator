@@ -2,12 +2,16 @@
 
 
 <div id="workspace">
-
-    <div id="return">
-        <a href="/"><img id="return-img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/VisualEditor_-_Icon_-_Close.svg/2000px-VisualEditor_-_Icon_-_Close.svg.png" /></a>
-    </div>
-    <div id="save">
-        <a href="/view_result/<%= map._id %>" target="_blank"><img id="save-img" src="https://cdn2.iconfinder.com/data/icons/windows-8-metro-style/128/save.png" /></a>    
+    <div id="infos">
+        <div id="map-name">
+            <input type="text" id="map-name-input" class="form-control" value="<%= map.name %>" />
+        </div>
+        <div id="return">
+            <a href="/"><img id="return-img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/VisualEditor_-_Icon_-_Close.svg/2000px-VisualEditor_-_Icon_-_Close.svg.png" /></a>
+        </div>
+        <div id="save">
+            <a href="/view_result/<%= map._id %>" target="_blank"><img id="save-img" src="https://cdn2.iconfinder.com/data/icons/windows-8-metro-style/128/save.png" /></a>    
+        </div>
     </div>
     
     <div id="map">
@@ -61,7 +65,6 @@
         var sendInfo = {
             style: $("#style-edit").val()
         };
-        alert(JSON.stringify(sendInfo));
         $.ajax({
            type: "POST",
            url: "/edit_map/<%= map.id %>",
@@ -74,6 +77,25 @@
            },
            data: sendInfo
         });
+    });
+    
+    $("#map-name-input").bind("change paste keyup", function() {
+        var sendInfo = {
+            name: $(this).val()
+        };
+        $.ajax({
+           type: "POST",
+           url: "/edit_map/<%= map.id %>",
+           dataType: "json",
+           success: function (msg) {
+                // nothing to do
+           },
+           error: function(msg){
+               alert(JSON.stringify(msg));
+           },
+           data: sendInfo
+        });
+        
     });
     
     function deleteMarker(id){
