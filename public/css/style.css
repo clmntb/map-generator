@@ -45,6 +45,8 @@ a {text-decoration: none; color: black;}
 #return-img {width: 40px;}
 #save{position: absolute; top:17px; right:50px; z-index:9999; }
 #save-img {width: 25px;}
+#map-name {position: absolute; top:13px; z-index:9999}
+#map-name input {width: 272px;position: absolute;right:-5px;}
 
 #index-content{padding-left: 20px;}
 
@@ -112,9 +114,9 @@ a {text-decoration: none; color: black;}
 #markers{
     position: absolute;
     right:10px;
-    top: 10px;
+    top: 55px;
     width: 350px;
-    height:85%;
+    height:80%;
     background: rgba(255,255,255,0.8);
     border: 1px solid #CCC;
     border-radius: 5px;
