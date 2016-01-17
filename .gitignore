@@ -1,2 +1,5 @@
 config.js
+nodes_modules
 nodes_modules/*
+public/bower_components/
+public/bower_components/*
